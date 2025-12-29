@@ -109,4 +109,15 @@ A: Safety first. If you are running a test and a REAL fire breaks out, the bluep
 
 ---
 
+## ⚠️ Disclaimer
+
+**Use at your own risk.**
+
+This blueprint and script are provided "as is", without warranty of any kind, express or implied.
+The author (**Xat0X**) cannot be held responsible for any damage, injury, loss of property, or failure of the system to operate as expected.
+
+*   This system is **NOT** a certified fire alarm system and should not replace professional, certified safety equipment.
+*   Always ensure you have working, standalone smoke detectors as a primary safety measure.
+*   Home Assistant, Zigbee networks, and WiFi can experience downtime; do not rely solely on this software for life-safety.
+
 **Created with ❤️ by Xat0X**
