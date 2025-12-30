@@ -5,7 +5,7 @@ blueprint:
   homeassistant:
     min_version: 2024.10.0
   description: |
-    # Smart Smoke System (V6)
+    # Smart Smoke System - Aqara Linker (Ultimate Edition)
     
     Linked fire-alarm handling for Aqara smoke detectors with a guided self-test wizard.
     
