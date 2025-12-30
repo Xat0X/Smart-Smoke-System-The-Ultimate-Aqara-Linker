@@ -480,7 +480,7 @@ variables:
     {{ data.sensor_manualalarm }}
 
   sensors_test_settestalarmto: >-
-    {{ test_sensors | reject('in', sensors_test_detected) | list }}
+          {{ test_sensors }}
 
   prepared_allalarm_notify_title: >-
     {% if trigger.id == 'triggered_test' %}
