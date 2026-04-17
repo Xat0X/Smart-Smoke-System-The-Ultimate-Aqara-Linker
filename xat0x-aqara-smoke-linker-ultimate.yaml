@@ -456,7 +456,7 @@ trigger_variables:
   test_sensors: >-
     {% set data = namespace(entities=[]) %}
     {% for device in input_smoke_detector_devices %}
-      {% set entity = device_entities(device) | select('match', 'binary_sensor\..*_test$') | list %}
+      {% set entity = device_entities(device) | select('match', 'binary_sensor[.].*_test$') | list %}
       {% if entity | length == 0 %}
          {% set entity = expand(device_entities(device))
              | selectattr('domain', 'equalto', 'binary_sensor')
@@ -562,7 +562,7 @@ variables:
   buzzers_all: >-
     {% set data = namespace(entities=[]) %}
     {% for device in input_smoke_detector_devices %}
-      {% set ent = device_entities(device) | select('match', 'select.*_(buzzer|siren_for_automation_only|warning|alarm)$') | list %}
+      {% set ent = device_entities(device) | select('match', 'select[.].*_(buzzer|siren_for_automation_only|warning|alarm)$') | list %}
       {% set data.entities = data.entities + ent %}
     {% endfor %}
     {{ data.entities }}
@@ -570,7 +570,7 @@ variables:
   sirens_all: >-
     {% set data = namespace(entities=[]) %}
     {% for device in input_smoke_detector_devices %}
-      {% set ent = device_entities(device) | select('match', 'siren\..*') | list %}
+      {% set ent = device_entities(device) | select('match', 'siren[.].*') | list %}
       {% set data.entities = data.entities + ent %}
     {% endfor %}
     {{ data.entities }}
@@ -578,7 +578,7 @@ variables:
   silence_switches_all: >-
     {% set data = namespace(entities=[]) %}
     {% for device in input_smoke_detector_devices %}
-      {% set ent = device_entities(device) | select('match', 'switch.*_silence$') | list %}
+      {% set ent = device_entities(device) | select('match', 'switch[.].*_silence$') | list %}
       {% set data.entities = data.entities + ent %}
     {% endfor %}
     {{ data.entities }}
@@ -586,7 +586,7 @@ variables:
   alarm_switches_all: >-
     {% set data = namespace(entities=[]) %}
     {% for device in input_smoke_detector_devices %}
-      {% set ent = device_entities(device) | select('match', 'switch.*_alarm$') | list %}
+      {% set ent = device_entities(device) | select('match', 'switch[.].*_alarm$') | list %}
       {% set data.entities = data.entities + ent %}
     {% endfor %}
     {{ data.entities }}
@@ -594,7 +594,7 @@ variables:
   detectors__heartbeat_switch: >-
     {% set data = namespace(entities=[]) %}
     {% for device in input_smoke_detector_devices %}
-      {% set ent = device_entities(device) | select('match', 'switch.*_heartbeat_indicator$') | list %}
+      {% set ent = device_entities(device) | select('match', 'switch[.].*_heartbeat_indicator$') | list %}
       {% set data.entities = data.entities + ent %}
     {% endfor %}
     {{ data.entities }}
@@ -614,7 +614,7 @@ variables:
     {% set data = namespace(entities=[]) %}
     {% for entity in sensors_smoke_notdetected %}
       {% set dev = device_id(entity) %}
-      {% set ent = device_entities(dev) | select('match', 'select.*_(buzzer|siren_for_automation_only|warning|alarm)$') | list %}
+      {% set ent = device_entities(dev) | select('match', 'select[.].*_(buzzer|siren_for_automation_only|warning|alarm)$') | list %}
       {% set data.entities = data.entities + ent %}
     {% endfor %}
     {{ data.entities }}
@@ -623,7 +623,7 @@ variables:
     {% set data = namespace(entities=[]) %}
     {% for entity in sensors_smoke_notdetected %}
       {% set dev = device_id(entity) %}
-      {% set ent = device_entities(dev) | select('match', 'siren\..*') | list %}
+      {% set ent = device_entities(dev) | select('match', 'siren[.].*') | list %}
       {% set data.entities = data.entities + ent %}
     {% endfor %}
     {{ data.entities }}
@@ -632,7 +632,7 @@ variables:
     {% set data = namespace(entities=[]) %}
     {% for entity in sensors_smoke_notdetected %}
       {% set dev = device_id(entity) %}
-      {% set ent = device_entities(dev) | select('match', 'switch.*_silence$') | list %}
+      {% set ent = device_entities(dev) | select('match', 'switch[.].*_silence$') | list %}
       {% set data.entities = data.entities + ent %}
     {% endfor %}
     {{ data.entities }}
@@ -641,7 +641,7 @@ variables:
     {% set data = namespace(entities=[]) %}
     {% for entity in sensors_smoke_notdetected %}
       {% set dev = device_id(entity) %}
-      {% set ent = device_entities(dev) | select('match', 'switch.*_alarm$') | list %}
+      {% set ent = device_entities(dev) | select('match', 'switch[.].*_alarm$') | list %}
       {% set data.entities = data.entities + ent %}
     {% endfor %}
     {{ data.entities }}
@@ -650,7 +650,7 @@ variables:
     {% set data = namespace(entities=[]) %}
     {% for entity in buzzers_set_manual_alarm %}
       {% set dev = device_id(entity) %}
-      {% set ent = device_entities(dev) | select('match', 'binary_sensor.*_buzzer_manual_alarm$') | list %}
+      {% set ent = device_entities(dev) | select('match', 'binary_sensor[.].*_buzzer_manual_alarm$') | list %}
       {% set data.entities = data.entities + ent %}
     {% endfor %}
     {{ data.entities }}
@@ -947,7 +947,7 @@ actions:
                                         - variables:
                                             btn: >-
                                               {% set dev = device_id(repeat.item) %}
-                                              {{ device_entities(dev) | select('match', 'button.*_selftest$') | list | join }}
+                                              {{ device_entities(dev) | select('match', 'button[.].*_selftest$') | list | join }}
                                         - if: "{{ btn != '' }}"
                                           then:
                                             - action: button.press
