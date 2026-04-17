@@ -36,34 +36,12 @@ blueprint:
       input:
         smoke_detector_devices:
           name: "Smoke Detectors"
-          description: "Select all supported smoke detectors (Aqara/Heiman/Moes via Zigbee or Zigbee2MQTT)."
+          description: "Select your Zigbee smoke detectors (ZHA or Zigbee2MQTT, any model incl. SMSZB-120)."
           selector:
             device:
               filter:
                 - integration: mqtt
-                  model: JY-GZ-01AQ
-                - integration: mqtt
-                  model: HS1SA-E
-                - integration: mqtt
-                  model: HS1SA-E-PLUS
-                - integration: mqtt
-                  model: ZSS-HM-SSD01
-                - integration: mqtt
-                  model: TS0205
                 - integration: zha
-                  model: lumi.sensor_smoke
-                - integration: zha
-                  model: lumi.sensor_smoke.acn03
-                - integration: zha
-                  model: HS1SA-E
-                - integration: zha
-                  model: HS1SA-E-PLUS
-                - integration: zha
-                  model: SmokeSensor-EF-3.0
-                - integration: zha
-                  model: ZSS-HM-SSD01
-                - integration: zha
-                  model: TS0205
               multiple: true
 
         test_start_trigger:
