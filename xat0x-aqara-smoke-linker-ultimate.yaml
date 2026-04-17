@@ -827,9 +827,11 @@ actions:
               - conditions:
                   - condition: template
                     value_template: >-
+                      {% set button_press_trigger_ids = ['triggered_test_button_press_service', 'triggered_test_button_press_entity'] %}
+                      {% set is_button_press_trigger = trigger is defined and trigger.id in button_press_trigger_ids %}
                       {% set call_service_entities = [] %}
-                      {% set svc_entity = trigger.event.data.service_data.entity_id if (trigger is defined and trigger.id in ['triggered_test_button_press_service','triggered_test_button_press_entity'] and trigger.event is defined and trigger.event.data is defined and trigger.event.data.service_data is defined and trigger.event.data.service_data.entity_id is defined) else none %}
-                      {% set target_entity = trigger.event.data.target.entity_id if (trigger is defined and trigger.id in ['triggered_test_button_press_service','triggered_test_button_press_entity'] and trigger.event is defined and trigger.event.data is defined and trigger.event.data.target is defined and trigger.event.data.target.entity_id is defined) else none %}
+                      {% set svc_entity = trigger.event.data.service_data.entity_id if (is_button_press_trigger and trigger.event is defined and trigger.event.data is defined and trigger.event.data.service_data is defined and trigger.event.data.service_data.entity_id is defined) else none %}
+                      {% set target_entity = trigger.event.data.target.entity_id if (is_button_press_trigger and trigger.event is defined and trigger.event.data is defined and trigger.event.data.target is defined and trigger.event.data.target.entity_id is defined) else none %}
                       {% if svc_entity is string %}
                         {% set call_service_entities = call_service_entities + [svc_entity] %}
                       {% elif svc_entity is sequence %}
@@ -841,7 +843,7 @@ actions:
                         {% set call_service_entities = call_service_entities + (target_entity | list) %}
                       {% endif %}
                       {{ (trigger is defined and trigger.id in ['triggered_test_any','triggered_test_sensor'])
-                         or (trigger is defined and trigger.id in ['triggered_test_button_press_service','triggered_test_button_press_entity'] and input_test_start_trigger in (call_service_entities | unique | list))
+                         or (is_button_press_trigger and input_test_start_trigger in (call_service_entities | unique | list))
                          or (trigger is not defined) }}
                 sequence:
                   - variables:
