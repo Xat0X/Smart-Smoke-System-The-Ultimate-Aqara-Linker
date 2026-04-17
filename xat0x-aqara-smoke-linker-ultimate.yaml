@@ -602,10 +602,10 @@ variables:
   tag_alarm: smoke-detector-alarm
   tag_selftest: smoke-detector-selftest
   tag_smoketest: smoke-detector-smoketest
-  prepared_firstalarm_ios_sound: '{% set snd = (input_firstalarm__ios_sound_name | default(''default'')) | trim %} {{ snd if snd != '''' else ''default'' }}'
-  prepared_firstalarm_android_sound: '{% set snd = (input_firstalarm__android_sound_name | default(''default'')) | trim %} {{ snd if snd != '''' else ''default'' }}'
-  prepared_allalarm_ios_sound: '{% set snd = (input_allalarm__ios_sound_name | default(''default'')) | trim %} {{ snd if snd != '''' else ''default'' }}'
-  prepared_allalarm_android_sound: '{% set snd = (input_allalarm__android_sound_name | default(''default'')) | trim %} {{ snd if snd != '''' else ''default'' }}'
+  prepared_firstalarm_ios_sound: "{{ (input_firstalarm__ios_sound_name | default('default') | trim) or 'default' }}"
+  prepared_firstalarm_android_sound: "{{ (input_firstalarm__android_sound_name | default('default') | trim) or 'default' }}"
+  prepared_allalarm_ios_sound: "{{ (input_allalarm__ios_sound_name | default('default') | trim) or 'default' }}"
+  prepared_allalarm_android_sound: "{{ (input_allalarm__android_sound_name | default('default') | trim) or 'default' }}"
   buzzers_all: "{% set data = namespace(entities=[]) %} {% for device in input_smoke_detector_devices %}\n  {% set ent = device_entities(device) | select('match', 'select[.].*_(buzzer|siren_for_automation_only|warning|alarm)$') | list %}\n  {% set data.entities = data.entities + ent %}\n{% endfor %}\n{{ data.entities }}"
   sirens_all: "{% set data = namespace(entities=[]) %} {% for device in input_smoke_detector_devices %}\n  {% set ent = device_entities(device) | select('match', 'siren[.].*') | list %}\n  {% set data.entities = data.entities + ent %}\n{% endfor %}\n{{ data.entities }}"
   silence_switches_all: "{% set data = namespace(entities=[]) %} {% for device in input_smoke_detector_devices %}\n  {% set ent = device_entities(device) | select('match', 'switch[.].*_silence$') | list %}\n  {% set data.entities = data.entities + ent %}\n{% endfor %}\n{{ data.entities }}"
