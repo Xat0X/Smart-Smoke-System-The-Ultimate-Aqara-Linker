@@ -429,7 +429,7 @@ trigger_variables:
     {% for item in input_smoke_detector_devices_raw %}
       {% set dev = item %}
       {% if item is string %}
-        {# Entity IDs follow domain.object_id. #}
+        {# Entity IDs follow domain.entity_id. #}
         {% set is_entity_id = item is match('^[^.]+[.][^.]+$') %}
         {% if is_entity_id %}
           {% set dev = device_id(item) %}
