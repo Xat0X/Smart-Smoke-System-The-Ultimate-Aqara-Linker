@@ -824,8 +824,8 @@ actions:
                                 target: { entity_id: "{{ alarm_switches_all }}" }
                           - stop: "User reported FALSE ALARM"
 
-                - conditions:
-                    - condition: template
+              - conditions:
+                  - condition: template
                     value_template: >-
                       {% set call_service_entities = [] %}
                       {% set svc_entity = trigger.event.data.service_data.entity_id if (trigger is defined and trigger.id in ['triggered_test_button_press_service','triggered_test_button_press_entity'] and trigger.event is defined and trigger.event.data is defined and trigger.event.data.service_data is defined and trigger.event.data.service_data.entity_id is defined) else none %}
