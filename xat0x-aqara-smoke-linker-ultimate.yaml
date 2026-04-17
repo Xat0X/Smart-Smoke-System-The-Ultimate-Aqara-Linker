@@ -1,13 +1,15 @@
 blueprint:
-  name: "Xat0X Smart Smoke System 🚨 (Ultimate Edition)"
+  name: "Xat0X Smart Smoke System 🚨"
   author: "Xat0X"
   domain: automation
   homeassistant:
     min_version: 2024.10.0
   description: |
-    # Smart Smoke System - Aqara Linker (Ultimate Edition)
+    # Smart Smoke System
     
-    Linked fire-alarm handling for Aqara smoke detectors with a guided self-test wizard.
+    Linked fire-alarm handling for Zigbee smoke detectors with a guided self-test wizard.
+    
+    GitHub: https://github.com/Xat0X/Smart-Smoke-System-The-Ultimate-Aqara-Linker
     
     ## Features
     *   **Coordinated Alarm:** Monitors all detectors; if one goes off, the system manages notifications and sirens.
@@ -15,10 +17,17 @@ blueprint:
     *   **Guided Self-Test:** Interactive walk-through to test buttons physically.
     *   **Watchdog:** Self-test aborts immediately if real smoke is detected elsewhere.
     
-    ## How to use Self-Test
-    1.  Define a "Test Start Trigger" (button/helper) below.
-    2.  Trigger it to start the wizard on your phone.
-    3.  Follow the notifications to test devices one by one.
+    ## Self-Test Quick Start
+    1.  Define a "Test Start Trigger" below (recommended: `input_button` helper).
+    2.  Select one phone as "Maintenance Device".
+    3.  Press the selected trigger entity from your dashboard to start the wizard.
+    4.  Follow phone prompts room-by-room until the summary appears.
+    
+    ## Setup Guidance
+    -   Add all smoke detector entities in "Smoke Detectors" so full-house alarm propagation works.
+    -   Keep "Enable Pre-Alarm" on unless you explicitly want immediate full sirens.
+    -   Configure Android `alarm_stream` channel for max importance and DND override.
+    -   Use monthly self-tests to verify detector button reporting and automations.
 
     ## Requirements
     -   **iOS:** Enable 'Critical Alerts' in iOS Settings -> Home Assistant -> Notifications.
@@ -50,11 +59,11 @@ blueprint:
 
         test_start_trigger:
           name: "Test Start Trigger"
-          description: "A button, switch, or helper that starts the Self-Test Wizard when pressed."
+          description: "Entity used to start the Self-Test Wizard. Best option: an input_button helper. Also supports button/switch/input_boolean/sensor/binary_sensor."
           default: []
           selector:
             entity:
-              domain: [input_button, binary_sensor, switch, input_boolean, sensor]
+              domain: [input_button, button, binary_sensor, switch, input_boolean, sensor]
               multiple: false
 
         alarm__notify_devices:
@@ -485,6 +494,20 @@ triggers:
       - unknown
       - none
     id: triggered_test_any
+
+  - platform: event
+    event_type: call_service
+    event_data:
+      domain: input_button
+      service: press
+    id: triggered_test_button_press_service
+
+  - platform: event
+    event_type: call_service
+    event_data:
+      domain: button
+      service: press
+    id: triggered_test_button_press_entity
   
   - platform: template
     value_template: >-
@@ -494,6 +517,7 @@ triggers:
 variables:
   input_alarm__notify_devices: !input alarm__notify_devices
   input_test__notify_device: !input test__notify_device
+  input_test_start_trigger: !input test_start_trigger
   input_critical__enabled: !input critical__enabled
   input_ios__critical_volume: !input ios__critical_volume
   input_wakeup__delay_seconds: !input wakeup__delay_seconds
@@ -656,14 +680,14 @@ variables:
   sensors_test_settestalarmto: "{{ test_sensors }}"
 
   prepared_allalarm_notify_title: >-
-    {% if trigger is defined and (trigger.id == 'triggered_test_any' or trigger.id == 'triggered_test_sensor') %}
+    {% if trigger is defined and (trigger.id in ['triggered_test_any', 'triggered_test_sensor', 'triggered_test_button_press_service', 'triggered_test_button_press_entity']) %}
       {{ '!TEST! ' ~ input_allalarm__notify_title ~ ' !TEST!' }}
     {% else %}
       {{ input_allalarm__notify_title }}
     {% endif %}
 
   prepared_allalarm_notify_message: >-
-    {% if trigger is defined and (trigger.id == 'triggered_test_any' or trigger.id == 'triggered_test_sensor') %}
+    {% if trigger is defined and (trigger.id in ['triggered_test_any', 'triggered_test_sensor', 'triggered_test_button_press_service', 'triggered_test_button_press_entity']) %}
       !THIS IS A TEST!
       {{ input_allalarm__notify_message }}
       !THIS IS A TEST!
@@ -800,10 +824,24 @@ actions:
                                 target: { entity_id: "{{ alarm_switches_all }}" }
                           - stop: "User reported FALSE ALARM"
 
-              - conditions:
-                  - condition: template
+                - conditions:
+                    - condition: template
                     value_template: >-
+                      {% set call_service_entities = [] %}
+                      {% set svc_entity = trigger.event.data.service_data.entity_id if (trigger is defined and trigger.id in ['triggered_test_button_press_service','triggered_test_button_press_entity'] and trigger.event is defined and trigger.event.data is defined and trigger.event.data.service_data is defined and trigger.event.data.service_data.entity_id is defined) else none %}
+                      {% set target_entity = trigger.event.data.target.entity_id if (trigger is defined and trigger.id in ['triggered_test_button_press_service','triggered_test_button_press_entity'] and trigger.event is defined and trigger.event.data is defined and trigger.event.data.target is defined and trigger.event.data.target.entity_id is defined) else none %}
+                      {% if svc_entity is string %}
+                        {% set call_service_entities = call_service_entities + [svc_entity] %}
+                      {% elif svc_entity is sequence %}
+                        {% set call_service_entities = call_service_entities + (svc_entity | list) %}
+                      {% endif %}
+                      {% if target_entity is string %}
+                        {% set call_service_entities = call_service_entities + [target_entity] %}
+                      {% elif target_entity is sequence %}
+                        {% set call_service_entities = call_service_entities + (target_entity | list) %}
+                      {% endif %}
                       {{ (trigger is defined and trigger.id in ['triggered_test_any','triggered_test_sensor'])
+                         or (trigger is defined and trigger.id in ['triggered_test_button_press_service','triggered_test_button_press_entity'] and input_test_start_trigger in (call_service_entities | unique | list))
                          or (trigger is not defined) }}
                 sequence:
                   - variables:
