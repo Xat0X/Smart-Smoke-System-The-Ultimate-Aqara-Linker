@@ -456,7 +456,7 @@ trigger_variables:
   test_sensors: >-
     {% set data = namespace(entities=[]) %}
     {% for device in input_smoke_detector_devices %}
-      {% set entity = device_entities(device) | select('match', 'binary_sensor\\..*_test$') | list %}
+      {% set entity = device_entities(device) | select('match', 'binary_sensor\..*_test$') | list %}
       {% if entity | length == 0 %}
          {% set entity = expand(device_entities(device))
              | selectattr('domain', 'equalto', 'binary_sensor')
@@ -570,7 +570,7 @@ variables:
   sirens_all: >-
     {% set data = namespace(entities=[]) %}
     {% for device in input_smoke_detector_devices %}
-      {% set ent = device_entities(device) | select('match', 'siren\\..*') | list %}
+      {% set ent = device_entities(device) | select('match', 'siren\..*') | list %}
       {% set data.entities = data.entities + ent %}
     {% endfor %}
     {{ data.entities }}
@@ -623,7 +623,7 @@ variables:
     {% set data = namespace(entities=[]) %}
     {% for entity in sensors_smoke_notdetected %}
       {% set dev = device_id(entity) %}
-      {% set ent = device_entities(dev) | select('match', 'siren\\..*') | list %}
+      {% set ent = device_entities(dev) | select('match', 'siren\..*') | list %}
       {% set data.entities = data.entities + ent %}
     {% endfor %}
     {{ data.entities }}
@@ -717,7 +717,7 @@ actions:
                                   - action: notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}
                                     data:
                                       title: "{{ realfire__areas_smoke_detected ~ ' - ' ~ input_firstalarm__notify_title }}"
-                                      message: "{{ realfire__areas_smoke_detected ~ '\n\n' ~ input_firstalarm__notify_message }}"
+                                      message: "{{ input_firstalarm__notify_message }}"
                                       data:
                                         tag: "{{ tag_alarm }}"
                                         channel: "alarm_stream"
@@ -1130,7 +1130,7 @@ actions:
                     - action: notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}
                       data:
                         title: "{{ realfire__areas_smoke_detected ~ ' - ' ~ prepared_allalarm_notify_title }}"
-                        message: "{{ realfire__areas_smoke_detected ~ '\n\n' ~ prepared_allalarm_notify_message }}"
+                        message: "{{ prepared_allalarm_notify_message }}"
                         data:
                           tag: "{{ tag_alarm }}"
                           channel: "alarm_stream"
@@ -1177,7 +1177,7 @@ actions:
                                   - action: notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}
                                     data:
                                       title: "{{ realfire__areas_smoke_detected ~ ' - ' ~ prepared_allalarm_notify_title }}"
-                                      message: "{{ realfire__areas_smoke_detected ~ '\n\n' ~ prepared_allalarm_notify_message }}"
+                                      message: "{{ prepared_allalarm_notify_message }}"
                                       data:
                                         tag: "{{ tag_alarm }}"
                                         channel: "alarm_stream"

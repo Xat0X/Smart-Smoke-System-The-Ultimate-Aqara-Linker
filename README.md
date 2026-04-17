@@ -101,11 +101,14 @@ Create a new automation using this blueprint. The settings are organized into co
 
 ### Notification Sound Names (how to find valid names)
 1. In Home Assistant, go to **Developer Tools -> Actions**.
-2. Run `notify.mobile_app_<your_phone>` with a test payload and change the `sound` / iOS `push.sound.name` value.
+2. Select the `notify.mobile_app_<your_phone>` action, enter a test payload in YAML mode, and change the `sound` / iOS `push.sound.name` value.
 3. If the phone plays the sound, that name is valid for your device/app setup.
 4. Keep Android in mind:
    * Android 8+ may use the notification channel sound as highest priority (`alarm_stream`).
    * If a custom per-message sound is ignored, configure sound directly on the `alarm_stream` channel in Android notification settings.
+   * Example payload keys:
+     * Android: `data: { sound: "default" }`
+     * iOS: `data: { push: { sound: { name: "alarm.caf" } } }`
 5. Use `default` for system default sound, or `none` for silent.
 
 ### Scenario 3: Monthly Maintenance
