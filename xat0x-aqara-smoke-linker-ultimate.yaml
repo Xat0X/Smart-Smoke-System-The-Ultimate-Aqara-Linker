@@ -427,13 +427,10 @@ trigger_variables:
   input_smoke_detector_devices: >-
     {% set data = namespace(devices=[]) %}
     {% for item in input_smoke_detector_devices_raw %}
-      {# Accept entity IDs from selector and device IDs from older saved automations. #}
+      {# Accept entity IDs (domain.object_id) from selector and device IDs from older saved automations. #}
       {% if item is string %}
-        {% set expanded = expand(item) | list %}
-        {% if expanded | length > 0 %}
+        {% if item is match('^[^.]+[.][^.]+$') %}
           {% set dev = device_id(item) %}
-        {% elif item.split('.') | length == 2 %}
-          {% set dev = none %}
         {% else %}
           {% set dev = item %}
         {% endif %}
