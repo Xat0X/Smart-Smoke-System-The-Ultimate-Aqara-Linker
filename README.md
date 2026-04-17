@@ -34,6 +34,7 @@ Most Zigbee smoke detectors are "dumb" isolated devices. If a fire starts in the
     *   Generic/OEM `SMSZB-120`
     *   Other Zigbee smoke detectors exposed in Home Assistant via ZHA/Zigbee2MQTT
         *   Requirement: the detector must provide a `binary_sensor` with `device_class: smoke`
+        *   Check this in Home Assistant: Developer Tools -> States (entity attributes)
 3.  **Home Assistant Mobile App** installed on your phone.
 4.  **Mobile Settings (CRITICAL):**
     *   **iOS:** Enable 'Critical Alerts' in iOS Settings -> Home Assistant -> Notifications.

@@ -430,7 +430,7 @@ trigger_variables:
       {% set dev = item %}
       {% if item is string %}
         {# Entity IDs follow domain.entity_id. #}
-        {% set is_entity_id = item is match('^[^.]+[.][^.]+$') %}
+        {% set is_entity_id = item is match('^[a-z_]+[.][a-z0-9_]+$') %}
         {% if is_entity_id %}
           {% set dev = device_id(item) %}
         {% endif %}
