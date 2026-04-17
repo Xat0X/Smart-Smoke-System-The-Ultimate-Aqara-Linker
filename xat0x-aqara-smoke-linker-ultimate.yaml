@@ -41,14 +41,29 @@ blueprint:
             device:
               filter:
                 - integration: mqtt
-                  manufacturer: Aqara
-                - integration: mqtt
                   model: JY-GZ-01AQ
+                - integration: mqtt
+                  model: HS1SA-E
                 - integration: mqtt
                   model: HS1SA-E-PLUS
                 - integration: mqtt
                   model: ZSS-HM-SSD01
+                - integration: mqtt
+                  model: TS0205
                 - integration: zha
+                  model: lumi.sensor_smoke
+                - integration: zha
+                  model: lumi.sensor_smoke.acn03
+                - integration: zha
+                  model: HS1SA-E
+                - integration: zha
+                  model: HS1SA-E-PLUS
+                - integration: zha
+                  model: SmokeSensor-EF-3.0
+                - integration: zha
+                  model: ZSS-HM-SSD01
+                - integration: zha
+                  model: TS0205
               multiple: true
 
         test_start_trigger:
@@ -125,9 +140,33 @@ blueprint:
 
         firstalarm__ios_sound_name:
           name: "iOS Sound (Pre-Alarm)"
-          description: "Set iOS notification sound filename (e.g. alarm.caf). Uses default sound if left empty."
+          description: "Choose or type an iOS notification sound filename (e.g. alarm.caf)."
           default: "default"
-          selector: { text: {} }
+          selector:
+            select:
+              options:
+                - label: "Default"
+                  value: "default"
+                - label: "Silent (none)"
+                  value: "none"
+              custom_value: true
+              sort: false
+              multiple: false
+
+        firstalarm__android_sound_name:
+          name: "Android Sound (Pre-Alarm)"
+          description: "Choose or type an Android notification sound name. Use 'default' for default app/channel sound."
+          default: "default"
+          selector:
+            select:
+              options:
+                - label: "Default"
+                  value: "default"
+                - label: "Silent (none)"
+                  value: "none"
+              custom_value: true
+              sort: false
+              multiple: false
 
         firstalarm__action:
           name: "Pre-Alarm Actions"
@@ -194,9 +233,33 @@ blueprint:
 
         allalarm__ios_sound_name:
           name: "iOS Sound (Main Alarm)"
-          description: "Set iOS notification sound filename (e.g. alarm.caf). Uses default sound if left empty."
+          description: "Choose or type an iOS notification sound filename (e.g. alarm.caf)."
           default: "default"
-          selector: { text: {} }
+          selector:
+            select:
+              options:
+                - label: "Default"
+                  value: "default"
+                - label: "Silent (none)"
+                  value: "none"
+              custom_value: true
+              sort: false
+              multiple: false
+
+        allalarm__android_sound_name:
+          name: "Android Sound (Main Alarm)"
+          description: "Choose or type an Android notification sound name. Use 'default' for default app/channel sound."
+          default: "default"
+          selector:
+            select:
+              options:
+                - label: "Default"
+                  value: "default"
+                - label: "Silent (none)"
+                  value: "none"
+              custom_value: true
+              sort: false
+              multiple: false
 
         allalarm__action:
           name: "Alarm Actions"
@@ -382,16 +445,24 @@ trigger_variables:
   smoke_sensors: >-
     {% set data = namespace(entities=[]) %}
     {% for device in input_smoke_detector_devices %}
-      {% set entity = device_entities(device) | select('match', 'binary_sensor.*_smoke$') | list %}
+      {% set entity = expand(device_entities(device))
+          | selectattr('domain', 'equalto', 'binary_sensor')
+          | selectattr('attributes.device_class', 'equalto', 'smoke')
+          | map(attribute='entity_id')
+          | list %}
       {% set data.entities = data.entities + entity %}
     {% endfor %}
     {{ data.entities }}
   test_sensors: >-
     {% set data = namespace(entities=[]) %}
     {% for device in input_smoke_detector_devices %}
-      {% set entity = device_entities(device) | select('match', 'binary_sensor.*_test$') | list %}
+      {% set entity = device_entities(device) | select('match', 'binary_sensor\\..*_test$') | list %}
       {% if entity | length == 0 %}
-         {% set entity = device_entities(device) | select('match', 'binary_sensor.*_smoke$') | list %}
+         {% set entity = expand(device_entities(device))
+             | selectattr('domain', 'equalto', 'binary_sensor')
+             | selectattr('attributes.device_class', 'equalto', 'smoke')
+             | map(attribute='entity_id')
+             | list %}
       {% endif %}
       {% set data.entities = data.entities + entity %}
     {% endfor %}
@@ -437,12 +508,14 @@ variables:
   input_firstalarm__notify_button_nofire: !input firstalarm__notify_button_nofire
   input_firstalarm__waittimeout_seconds: !input firstalarm__waittimeout_seconds
   input_firstalarm__ios_sound_name: !input firstalarm__ios_sound_name
+  input_firstalarm__android_sound_name: !input firstalarm__android_sound_name
 
   input_allalarm__notify_title: !input allalarm__notify_title
   input_allalarm__notify_message: !input allalarm__notify_message
   input_allalarm__notify_button_deletenotification: !input allalarm__notify_button_deletenotification
   input_allalarm__notify_button_mutealarm: !input allalarm__notify_button_mutealarm
   input_allalarm__ios_sound_name: !input allalarm__ios_sound_name
+  input_allalarm__android_sound_name: !input allalarm__android_sound_name
 
   input_selftest__activated: !input selftest__activated
   input_selftest__notify_title: !input selftest__notify_title
@@ -476,14 +549,20 @@ variables:
   prepared_firstalarm_ios_sound: >-
     {% set snd = (input_firstalarm__ios_sound_name | default('default')) | trim %}
     {{ snd if snd != '' else 'default' }}
+  prepared_firstalarm_android_sound: >-
+    {% set snd = (input_firstalarm__android_sound_name | default('default')) | trim %}
+    {{ snd if snd != '' else 'default' }}
   prepared_allalarm_ios_sound: >-
     {% set snd = (input_allalarm__ios_sound_name | default('default')) | trim %}
+    {{ snd if snd != '' else 'default' }}
+  prepared_allalarm_android_sound: >-
+    {% set snd = (input_allalarm__android_sound_name | default('default')) | trim %}
     {{ snd if snd != '' else 'default' }}
 
   buzzers_all: >-
     {% set data = namespace(entities=[]) %}
     {% for device in input_smoke_detector_devices %}
-      {% set ent = device_entities(device) | select('match', 'select.*_(buzzer|siren_for_automation_only)$') | list %}
+      {% set ent = device_entities(device) | select('match', 'select.*_(buzzer|siren_for_automation_only|warning|alarm)$') | list %}
       {% set data.entities = data.entities + ent %}
     {% endfor %}
     {{ data.entities }}
@@ -500,6 +579,14 @@ variables:
     {% set data = namespace(entities=[]) %}
     {% for device in input_smoke_detector_devices %}
       {% set ent = device_entities(device) | select('match', 'switch.*_silence$') | list %}
+      {% set data.entities = data.entities + ent %}
+    {% endfor %}
+    {{ data.entities }}
+
+  alarm_switches_all: >-
+    {% set data = namespace(entities=[]) %}
+    {% for device in input_smoke_detector_devices %}
+      {% set ent = device_entities(device) | select('match', 'switch.*_alarm$') | list %}
       {% set data.entities = data.entities + ent %}
     {% endfor %}
     {{ data.entities }}
@@ -527,7 +614,7 @@ variables:
     {% set data = namespace(entities=[]) %}
     {% for entity in sensors_smoke_notdetected %}
       {% set dev = device_id(entity) %}
-      {% set ent = device_entities(dev) | select('match', 'select.*_(buzzer|siren_for_automation_only)$') | list %}
+      {% set ent = device_entities(dev) | select('match', 'select.*_(buzzer|siren_for_automation_only|warning|alarm)$') | list %}
       {% set data.entities = data.entities + ent %}
     {% endfor %}
     {{ data.entities }}
@@ -546,6 +633,15 @@ variables:
     {% for entity in sensors_smoke_notdetected %}
       {% set dev = device_id(entity) %}
       {% set ent = device_entities(dev) | select('match', 'switch.*_silence$') | list %}
+      {% set data.entities = data.entities + ent %}
+    {% endfor %}
+    {{ data.entities }}
+
+  alarm_switches_set_manual_alarm: >-
+    {% set data = namespace(entities=[]) %}
+    {% for entity in sensors_smoke_notdetected %}
+      {% set dev = device_id(entity) %}
+      {% set ent = device_entities(dev) | select('match', 'switch.*_alarm$') | list %}
       {% set data.entities = data.entities + ent %}
     {% endfor %}
     {{ data.entities }}
@@ -620,13 +716,14 @@ actions:
                                 sequence:
                                   - action: notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}
                                     data:
-                                      title: "{{ input_firstalarm__notify_title }}"
-                                      message: "{{ input_firstalarm__notify_message ~ '\n\n' ~ realfire__areas_smoke_detected }}"
+                                      title: "{{ realfire__areas_smoke_detected ~ ' - ' ~ input_firstalarm__notify_title }}"
+                                      message: "{{ realfire__areas_smoke_detected ~ '\n\n' ~ input_firstalarm__notify_message }}"
                                       data:
                                         tag: "{{ tag_alarm }}"
                                         channel: "alarm_stream"
                                         priority: high
                                         ttl: 0
+                                        sound: "{{ prepared_firstalarm_android_sound }}"
                                         push:
                                           sound:
                                             name: "{{ prepared_firstalarm_ios_sound }}"
@@ -676,6 +773,11 @@ actions:
                                         - action: select.select_option
                                           target: { entity_id: "{{ repeat.item }}" }
                                           data: { option: "stop" }
+                                    - conditions: "{{ 'no_alarm' in repeat_options }}"
+                                      sequence:
+                                        - action: select.select_option
+                                          target: { entity_id: "{{ repeat.item }}" }
+                                          data: { option: "no_alarm" }
                                     - conditions: "{{ 'off' in repeat_options }}"
                                       sequence:
                                         - action: select.select_option
@@ -694,6 +796,10 @@ actions:
                             then:
                               - action: switch.turn_on
                                 target: { entity_id: "{{ silence_switches_all }}" }
+                          - if: "{{ alarm_switches_all | length > 0 }}"
+                            then:
+                              - action: switch.turn_off
+                                target: { entity_id: "{{ alarm_switches_all }}" }
                           - stop: "User reported FALSE ALARM"
 
               - conditions:
@@ -960,6 +1066,21 @@ actions:
                             - action: select.select_option
                               target: { entity_id: "{{ repeat.item }}" }
                               data: { option: "alarm" }
+                        - conditions: "{{ 'fire' in repeat_options }}"
+                          sequence:
+                            - action: select.select_option
+                              target: { entity_id: "{{ repeat.item }}" }
+                              data: { option: "fire" }
+                        - conditions: "{{ 'fire_alarm' in repeat_options }}"
+                          sequence:
+                            - action: select.select_option
+                              target: { entity_id: "{{ repeat.item }}" }
+                              data: { option: "fire_alarm" }
+                        - conditions: "{{ 'emergency' in repeat_options }}"
+                          sequence:
+                            - action: select.select_option
+                              target: { entity_id: "{{ repeat.item }}" }
+                              data: { option: "emergency" }
                         - conditions: "{{ 'smoke_siren' in repeat_options }}"
                           sequence:
                             - action: select.select_option
@@ -987,6 +1108,12 @@ actions:
                   - alias: "Ensure silence disabled before alarm"
                     action: switch.turn_off
                     target: { entity_id: "{{ silence_switches_set_manual_alarm }}" }
+
+              - if: "{{ alarm_switches_set_manual_alarm | length > 0 }}"
+                then:
+                  - alias: "Trigger Sirens (switch alarm entities)"
+                    action: switch.turn_on
+                    target: { entity_id: "{{ alarm_switches_set_manual_alarm }}" }
               
               - choose: []
                 default: !input allalarm__action
@@ -1002,13 +1129,14 @@ actions:
                   sequence:
                     - action: notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}
                       data:
-                        title: "{{ prepared_allalarm_notify_title }}"
-                        message: "{{ prepared_allalarm_notify_message ~ '\n\n' ~ realfire__areas_smoke_detected }}"
+                        title: "{{ realfire__areas_smoke_detected ~ ' - ' ~ prepared_allalarm_notify_title }}"
+                        message: "{{ realfire__areas_smoke_detected ~ '\n\n' ~ prepared_allalarm_notify_message }}"
                         data:
                           tag: "{{ tag_alarm }}"
                           channel: "alarm_stream"
                           priority: high
                           ttl: 0
+                          sound: "{{ prepared_allalarm_android_sound }}"
                           push:
                             sound:
                               name: "{{ prepared_allalarm_ios_sound }}"
@@ -1048,13 +1176,14 @@ actions:
                                 sequence:
                                   - action: notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}
                                     data:
-                                      title: "{{ prepared_allalarm_notify_title }}"
-                                      message: "{{ prepared_allalarm_notify_message ~ '\n\n' ~ realfire__areas_smoke_detected }}"
+                                      title: "{{ realfire__areas_smoke_detected ~ ' - ' ~ prepared_allalarm_notify_title }}"
+                                      message: "{{ realfire__areas_smoke_detected ~ '\n\n' ~ prepared_allalarm_notify_message }}"
                                       data:
                                         tag: "{{ tag_alarm }}"
                                         channel: "alarm_stream"
                                         priority: high
                                         ttl: 0
+                                        sound: "{{ prepared_allalarm_android_sound }}"
                                         push:
                                           sound:
                                             name: "{{ prepared_allalarm_ios_sound }}"
@@ -1093,6 +1222,11 @@ actions:
                                       - action: select.select_option
                                         target: { entity_id: "{{ repeat.item }}" }
                                         data: { option: "stop" }
+                                  - conditions: "{{ 'no_alarm' in repeat_options }}"
+                                    sequence:
+                                      - action: select.select_option
+                                        target: { entity_id: "{{ repeat.item }}" }
+                                        data: { option: "no_alarm" }
                                   - conditions: "{{ 'off' in repeat_options }}"
                                     sequence:
                                       - action: select.select_option
@@ -1111,4 +1245,8 @@ actions:
                           then:
                             - action: switch.turn_on
                               target: { entity_id: "{{ silence_switches_all }}" }
+                        - if: "{{ alarm_switches_all | length > 0 }}"
+                          then:
+                            - action: switch.turn_off
+                              target: { entity_id: "{{ alarm_switches_all }}" }
                         - delay: 5

@@ -15,7 +15,8 @@ Most Zigbee smoke detectors are "dumb" isolated devices. If a fire starts in the
 ### Key Features (Ultimate Edition)
 *   🔗 **Interconnected Alarms**: If one detector triggers, **ALL** detectors in your home will sound their sirens.
 *   ⚠️ **Pre-Alarm Verification**: Prevents panic from burnt toast. You get a phone notification first ("Is this real?"). If you don't answer, the main alarm triggers.
-*   🔊 **Custom iOS Alarm Sounds**: Set your own iOS notification sound for both pre-alarm and main alarm.
+*   🔊 **Notification Sound Chooser (iOS + Android)**: Choose `default`, `none`, or type your own sound name for pre-alarm and main alarm notifications.
+*   📍 **Room-First Alert Text**: Alert titles/messages start with room/area name so it remains visible even when notifications are shortened.
 *   ✅ **Guided Self-Test Wizard**: A specialized interactive mode. You trigger the test in HA, and your phone guides you room-by-room to physically press the buttons.
 *   🌫️ **Smoke Spray Mode**: Optional post-test phase to safely use canned smoke spray without triggering the full evacuation plan.
 *   🐕 **Watchdog Protection**: If a **REAL** fire is detected during a self-test, the test is immediately aborted, and the full alarm sounds.
@@ -33,7 +34,7 @@ Most Zigbee smoke detectors are "dumb" isolated devices. If a fire starts in the
 3.  **Home Assistant Mobile App** installed on your phone.
 4.  **Mobile Settings (CRITICAL):**
     *   **iOS:** Enable 'Critical Alerts' in iOS Settings -> Home Assistant -> Notifications.
-    *   **Android:** Notifications are sent to channel `alarm_stream`. Configure this channel in Android Settings to "Override Do Not Disturb".
+    *   **Android:** Notifications are sent to channel `alarm_stream`. Configure this channel in Android Settings to "Override Do Not Disturb", set channel importance to max, and configure your preferred channel sound.
 
 ---
 
@@ -65,13 +66,15 @@ Create a new automation using this blueprint. The settings are organized into co
 ### 2. 🛡️ Pre-Alarm
 *   **Enable Pre-Alarm**: Recommended **ON**.
 *   **Timeout**: Time (default 15s) to confirm "False Alarm" on your phone before the loud sirens and main actions trigger.
-*   **iOS Sound (Pre-Alarm)**: Optional custom iOS sound filename.
+*   **iOS Sound (Pre-Alarm)**: Choose `default` / `none` or type a custom sound name.
+*   **Android Sound (Pre-Alarm)**: Choose `default` / `none` or type a custom sound name.
 
 ### 3. 🔥 Main Alarm
 *   **Main Alarm Actions**: This is where you define your evacuation plan.
     *   *Example:* Add actions to Turn on all lights 100%, Unlock Nuki/Yale locks, Turn off HVAC/Gas.
 *   **Mute Duration**: How long sirens stay silent when you press "Mute".
-*   **iOS Sound (Main Alarm)**: Optional custom iOS sound filename.
+*   **iOS Sound (Main Alarm)**: Choose `default` / `none` or type a custom sound name.
+*   **Android Sound (Main Alarm)**: Choose `default` / `none` or type a custom sound name.
 
 ### 4. ✅ Self-Test & Spray
 *   **Enable Self-Test**: Required for the wizard.
@@ -95,6 +98,15 @@ Create a new automation using this blueprint. The settings are organized into co
 4.  **ALL** supported detectors that expose alarm/siren control are commanded to start sirens.
 5.  **Main Alarm Actions** run (Lights turn on, doors unlock).
 6.  Phones receive: **"FIRE - EVACUATE!"**.
+
+### Notification Sound Names (how to find valid names)
+1. In Home Assistant, go to **Developer Tools -> Actions**.
+2. Run `notify.mobile_app_<your_phone>` with a test payload and change the `sound` / iOS `push.sound.name` value.
+3. If the phone plays the sound, that name is valid for your device/app setup.
+4. Keep Android in mind:
+   * Android 8+ may use the notification channel sound as highest priority (`alarm_stream`).
+   * If a custom per-message sound is ignored, configure sound directly on the `alarm_stream` channel in Android notification settings.
+5. Use `default` for system default sound, or `none` for silent.
 
 ### Scenario 3: Monthly Maintenance
 1.  **You press the "Test Start Trigger"** (Helper button) in your Dashboard.
