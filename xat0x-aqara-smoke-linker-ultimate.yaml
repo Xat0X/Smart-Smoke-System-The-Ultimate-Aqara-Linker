@@ -626,10 +626,12 @@ variables:
   prepared_firstalarm_android_sound: "{{ (input_firstalarm__android_sound_name | default('default') | trim) or 'default' }}"
   prepared_allalarm_ios_sound: "{{ (input_allalarm__ios_sound_name | default('default') | trim) or 'default' }}"
   prepared_allalarm_android_sound: "{{ (input_allalarm__android_sound_name | default('default') | trim) or 'default' }}"
+  
   buzzers_all: "{% set data = namespace(entities=[]) %} {% for device in input_smoke_detector_devices %}\n  {% set ent = device_entities(device) | select('match', 'select[.].*_(buzzer|siren_for_automation_only|warning|alarm)$') | list %}\n  {% set data.entities = data.entities + ent %}\n{% endfor %}\n{{ data.entities }}"
   sirens_all: "{% set data = namespace(entities=[]) %} {% for device in input_smoke_detector_devices %}\n  {% set ent = device_entities(device) | select('match', 'siren[.].*') | list %}\n  {% set data.entities = data.entities + ent %}\n{% endfor %}\n{{ data.entities }}"
   silence_switches_all: "{% set data = namespace(entities=[]) %} {% for device in input_smoke_detector_devices %}\n  {% set ent = device_entities(device) | select('match', 'switch[.].*_silence$') | list %}\n  {% set data.entities = data.entities + ent %}\n{% endfor %}\n{{ data.entities }}"
   alarm_switches_all: "{% set data = namespace(entities=[]) %} {% for device in input_smoke_detector_devices %}\n  {% set ent = device_entities(device) | select('match', 'switch[.].*_alarm$') | list %}\n  {% set data.entities = data.entities + ent %}\n{% endfor %}\n{{ data.entities }}"
+  manual_mute_sensors_all: "{% set data = namespace(entities=[]) %} {% for device in input_smoke_detector_devices %}\n  {% set ent = device_entities(device) | select('match', 'binary_sensor[.].*_buzzer_manual_mute$') | list %}\n  {% set data.entities = data.entities + ent %}\n{% endfor %}\n{{ data.entities }}"
   detectors__heartbeat_switch: "{% set data = namespace(entities=[]) %} {% for device in input_smoke_detector_devices %}\n  {% set ent = device_entities(device) | select('match', 'switch[.].*_heartbeat_indicator$') | list %}\n  {% set data.entities = data.entities + ent %}\n{% endfor %}\n{{ data.entities }}"
 
   sensors_smoke_detected: '{{ expand(smoke_sensors) | selectattr(''state'', ''equalto'', ''on'') | map(attribute=''entity_id'') | list }}'
@@ -1173,7 +1175,11 @@ action:
               event_data:
                 tag: '{{ tag_alarm }}'
             - platform: template
-              value_template: '{{ silence_switches_all | length > 0 and expand(silence_switches_all) | selectattr("state", "equalto", "on") | list | length > 0 }}'
+              value_template: >
+                {% set s1 = expand(silence_switches_all) | selectattr("state", "equalto", "on") | list if silence_switches_all | length > 0 else [] %}
+                {% set s2 = expand(manual_mute_sensors_all) | selectattr("state", "equalto", "on") | list if manual_mute_sensors_all | length > 0 else [] %}
+                {% set s3 = expand(buzzers_all) | selectattr("state", "equalto", "mute") | list if buzzers_all | length > 0 else [] %}
+                {{ s1 | length > 0 or s2 | length > 0 or s3 | length > 0 }}
               id: physical_mute
             - platform: template
               value_template: '{{ expand(smoke_sensors) | selectattr("state", "equalto", "on") | list | length == 0 }}'
