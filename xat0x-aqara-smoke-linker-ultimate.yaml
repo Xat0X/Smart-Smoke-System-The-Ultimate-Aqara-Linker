@@ -474,6 +474,13 @@ trigger_variables:
       {% set data.entities = data.entities + entity %}
     {% endfor %}
     {{ data.entities }}
+  test_sensors_dedicated: >-
+    {% set data = namespace(entities=[]) %}
+    {% for device in input_smoke_detector_devices %}
+      {% set entity = device_entities(device) | select('match', 'binary_sensor[.].*_test$') | list %}
+      {% set data.entities = data.entities + entity %}
+    {% endfor %}
+    {{ data.entities }}
 
 triggers:
   - platform: template
@@ -511,7 +518,7 @@ triggers:
   
   - platform: template
     value_template: >-
-      {{ expand(test_sensors) | selectattr('state', 'equalto', 'on') | list | length > 0 }}
+      {{ expand(test_sensors_dedicated) | selectattr('state', 'equalto', 'on') | list | length > 0 }}
     id: triggered_test_sensor
 
 variables:
