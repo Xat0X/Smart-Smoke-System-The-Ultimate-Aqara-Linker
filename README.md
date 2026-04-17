@@ -1,4 +1,4 @@
-# 🚨 Xat0X Smart Smoke System (Ultimate Edition)
+# 🚨 Xat0X Smart Smoke System
 
 > **The ultimate safety suite for interoperable Zigbee smoke detectors in Home Assistant.**
 
@@ -12,7 +12,7 @@ Turn your individual Zigbee smoke detectors into a professional, interconnected 
 
 Most Zigbee smoke detectors are "dumb" isolated devices. If a fire starts in the attic, you won't hear it in the bedroom. **This blueprint fixes that.**
 
-### Key Features (Ultimate Edition)
+### Key Features
 *   🔗 **Interconnected Alarms**: If one detector triggers, **ALL** detectors in your home will sound their sirens.
 *   ⚠️ **Pre-Alarm Verification**: Prevents panic from burnt toast. You get a phone notification first ("Is this real?"). If you don't answer, the main alarm triggers.
 *   🔊 **Notification Sound Chooser (iOS + Android)**: Choose `default`, `none`, or type your own sound name for pre-alarm and main alarm notifications.
@@ -63,7 +63,7 @@ Create a new automation using this blueprint. The settings are organized into co
 
 ### 1. 📟 Devices & Triggers
 *   **Smoke Detectors**: Select ALL your Zigbee smoke detectors here (including `SMSZB-120`).
-*   **Test Start Trigger**: Create a Helper (Button or Toggle) in Home Assistant. Select it here. **Pressing this button starts the Self-Test Wizard.**
+*   **Test Start Trigger**: Create an `input_button` Helper in Home Assistant (recommended) and select it here. **Pressing it starts the Self-Test Wizard.** `button`, `switch`, `input_boolean`, `sensor`, and `binary_sensor` entities are also supported.
 *   **Alarm Notification Devices**: Phones for the whole family (Critical Alerts).
 *   **Maintenance Device**: The specific phone that will receive the interactive test instructions.
 
