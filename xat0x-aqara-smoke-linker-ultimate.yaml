@@ -427,7 +427,7 @@ trigger_variables:
   input_smoke_detector_devices: >-
     {% set data = namespace(devices=[]) %}
     {% for item in input_smoke_detector_devices_raw %}
-      {# Accept both entity IDs (new selector) and device IDs (backward compatibility). #}
+      {# Accept both entity IDs (new selector, format: domain.entity_id -> 2 parts) and device IDs (backward compatibility). #}
       {% if item is string and (item.split('.') | length == 2) %}
         {% set dev = device_id(item) %}
       {% else %}
