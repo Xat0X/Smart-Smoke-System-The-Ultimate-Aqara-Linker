@@ -829,9 +829,10 @@ actions:
                     value_template: >-
                       {% set button_press_trigger_ids = ['triggered_test_button_press_service', 'triggered_test_button_press_entity'] %}
                       {% set is_button_press_trigger = trigger is defined and trigger.id in button_press_trigger_ids %}
+                      {% set event_data = trigger.event.data if (is_button_press_trigger and trigger.event is defined and trigger.event.data is defined) else dict() %}
                       {% set call_service_entities = [] %}
-                      {% set svc_entity = trigger.event.data.service_data.entity_id if (is_button_press_trigger and trigger.event is defined and trigger.event.data is defined and trigger.event.data.service_data is defined and trigger.event.data.service_data.entity_id is defined) else none %}
-                      {% set target_entity = trigger.event.data.target.entity_id if (is_button_press_trigger and trigger.event is defined and trigger.event.data is defined and trigger.event.data.target is defined and trigger.event.data.target.entity_id is defined) else none %}
+                      {% set svc_entity = event_data.service_data.entity_id | default(none) %}
+                      {% set target_entity = event_data.target.entity_id | default(none) %}
                       {% if svc_entity is string %}
                         {% set call_service_entities = call_service_entities + [svc_entity] %}
                       {% elif svc_entity is sequence %}
