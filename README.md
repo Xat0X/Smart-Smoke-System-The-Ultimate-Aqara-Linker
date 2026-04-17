@@ -1,11 +1,11 @@
 # 🚨 Xat0X Smart Smoke System (Ultimate Edition)
 
-> **The ultimate safety suite for Aqara (JY-GZ-01AQ) smoke detectors in Home Assistant.**
+> **The ultimate safety suite for interoperable Zigbee smoke detectors in Home Assistant.**
 
 Turn your individual Zigbee smoke detectors into a professional, interconnected fire alarm system without buying an expensive hub.
 
 ![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Blueprint-blue)
-![Devices](https://img.shields.io/badge/Devices-Aqara%20JY--GZ--01AQ-green)
+![Devices](https://img.shields.io/badge/Devices-Aqara%20%7C%20Heiman%20%7C%20Moes-green)
 ![Author](https://img.shields.io/badge/Author-Xat0X-orange)
 
 ## 🌟 Why this blueprint?
@@ -15,6 +15,7 @@ Most Zigbee smoke detectors are "dumb" isolated devices. If a fire starts in the
 ### Key Features (Ultimate Edition)
 *   🔗 **Interconnected Alarms**: If one detector triggers, **ALL** detectors in your home will sound their sirens.
 *   ⚠️ **Pre-Alarm Verification**: Prevents panic from burnt toast. You get a phone notification first ("Is this real?"). If you don't answer, the main alarm triggers.
+*   🔊 **Custom iOS Alarm Sounds**: Set your own iOS notification sound for both pre-alarm and main alarm.
 *   ✅ **Guided Self-Test Wizard**: A specialized interactive mode. You trigger the test in HA, and your phone guides you room-by-room to physically press the buttons.
 *   🌫️ **Smoke Spray Mode**: Optional post-test phase to safely use canned smoke spray without triggering the full evacuation plan.
 *   🐕 **Watchdog Protection**: If a **REAL** fire is detected during a self-test, the test is immediately aborted, and the full alarm sounds.
@@ -25,7 +26,10 @@ Most Zigbee smoke detectors are "dumb" isolated devices. If a fire starts in the
 ## 📋 Requirements
 
 1.  **Home Assistant** (2024.10 or newer).
-2.  **Aqara Smoke Detectors** (Model `JY-GZ-01AQ`) connected via Zigbee (ZHA or Zigbee2MQTT).
+2.  **Supported Smoke Detectors** connected via Zigbee (ZHA or Zigbee2MQTT), including:
+    *   Aqara `JY-GZ-01AQ`
+    *   Heiman `HS1SA-E-PLUS`
+    *   Moes `ZSS-HM-SSD01`
 3.  **Home Assistant Mobile App** installed on your phone.
 4.  **Mobile Settings (CRITICAL):**
     *   **iOS:** Enable 'Critical Alerts' in iOS Settings -> Home Assistant -> Notifications.
@@ -53,7 +57,7 @@ Most Zigbee smoke detectors are "dumb" isolated devices. If a fire starts in the
 Create a new automation using this blueprint. The settings are organized into collapsible sections:
 
 ### 1. 📟 Devices & Triggers
-*   **Smoke Detectors**: Select ALL your Aqara smoke entities here.
+*   **Smoke Detectors**: Select ALL your supported smoke detectors here (Aqara/Heiman/Moes).
 *   **Test Start Trigger**: Create a Helper (Button or Toggle) in Home Assistant. Select it here. **Pressing this button starts the Self-Test Wizard.**
 *   **Alarm Notification Devices**: Phones for the whole family (Critical Alerts).
 *   **Maintenance Device**: The specific phone that will receive the interactive test instructions.
@@ -61,11 +65,13 @@ Create a new automation using this blueprint. The settings are organized into co
 ### 2. 🛡️ Pre-Alarm
 *   **Enable Pre-Alarm**: Recommended **ON**.
 *   **Timeout**: Time (default 15s) to confirm "False Alarm" on your phone before the loud sirens and main actions trigger.
+*   **iOS Sound (Pre-Alarm)**: Optional custom iOS sound filename.
 
 ### 3. 🔥 Main Alarm
 *   **Main Alarm Actions**: This is where you define your evacuation plan.
     *   *Example:* Add actions to Turn on all lights 100%, Unlock Nuki/Yale locks, Turn off HVAC/Gas.
 *   **Mute Duration**: How long sirens stay silent when you press "Mute".
+*   **iOS Sound (Main Alarm)**: Optional custom iOS sound filename.
 
 ### 4. ✅ Self-Test & Spray
 *   **Enable Self-Test**: Required for the wizard.
@@ -86,7 +92,7 @@ Create a new automation using this blueprint. The settings are organized into co
 1.  Smoke is detected in the Garage.
 2.  You don't answer the notification within 15 seconds.
 3.  **FULL ALARM** triggers.
-4.  **ALL** Aqara detectors start sirens.
+4.  **ALL** supported detectors that expose alarm/siren control are commanded to start sirens.
 5.  **Main Alarm Actions** run (Lights turn on, doors unlock).
 6.  Phones receive: **"FIRE - EVACUATE!"**.
 
