@@ -16,6 +16,7 @@ blueprint:
     *   **Pre-Alarm:** Optional verification stage to prevent false alarms.
     *   **Guided Self-Test:** Interactive walk-through to test buttons physically.
     *   **Watchdog:** Self-test aborts immediately if real smoke is detected elsewhere.
+    *   **Sound Test:** Test your custom iOS/Android notification sounds without triggering actual sirens.
     
     ## Self-Test Quick Start
     1.  Define a "Test Start Trigger" below (recommended: `input_button` helper).
@@ -74,6 +75,20 @@ blueprint:
               - switch
               - input_boolean
               - sensor
+              multiple: false
+              reorder: false
+
+        sound_test_trigger:
+          name: Notification Sound Test Trigger
+          description: 'Entity used to test custom notification sounds on your devices without triggering sirens. Best option: an input_button helper.'
+          selector:
+            entity:
+              domain:
+              - input_button
+              - button
+              - binary_sensor
+              - switch
+              - input_boolean
               multiple: false
               reorder: false
 
@@ -530,6 +545,10 @@ trigger:
   entity_id: !input test_start_trigger
   id: triggered_test_any
 
+- platform: state
+  entity_id: !input sound_test_trigger
+  id: triggered_sound_test
+
 - platform: template
   value_template: >
     {% set ns = namespace(test_active=false) %}
@@ -559,6 +578,7 @@ variables:
   input_alarm__notify_devices: !input alarm__notify_devices
   input_test__notify_device: !input test__notify_device
   input_test_start_trigger: !input test_start_trigger
+  input_sound_test_trigger: !input sound_test_trigger
   input_critical__enabled: !input critical__enabled
   input_ios__critical_volume: !input ios__critical_volume
   input_wakeup__delay_seconds: !input wakeup__delay_seconds
@@ -629,6 +649,43 @@ variables:
   heartbeat_initial_on: "{% if detectors__heartbeat_switch | length > 0 %}\n  {{ expand(detectors__heartbeat_switch) | selectattr('state','equalto','on') | map(attribute='entity_id') | list }}\n{% else %}[]{% endif %}"
 
 action:
+- choose:
+  - conditions:
+    - condition: template
+      value_template: '{{ trigger is defined and trigger.id == "triggered_sound_test" }}'
+    sequence:
+    - repeat:
+        for_each: '{{ input_alarm__notify_devices }}'
+        sequence:
+        - action: notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}
+          data:
+            title: 'TEST - Pre-Alarm Sound'
+            message: 'This is a test of the Pre-Alarm sound configuration.'
+            data:
+              channel: alarm_stream
+              priority: high
+              sound: '{{ prepared_firstalarm_android_sound }}'
+              push:
+                sound:
+                  name: '{{ prepared_firstalarm_ios_sound }}'
+                  critical: '{{ 1 if input_critical__enabled else 0 }}'
+                  volume: '{{ input_ios__critical_volume }}'
+        - delay: 5
+        - action: notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}
+          data:
+            title: 'TEST - Main Alarm Sound'
+            message: 'This is a test of the Main Alarm sound configuration.'
+            data:
+              channel: alarm_stream
+              priority: high
+              sound: '{{ prepared_allalarm_android_sound }}'
+              push:
+                sound:
+                  name: '{{ prepared_allalarm_ios_sound }}'
+                  critical: '{{ 1 if input_critical__enabled else 0 }}'
+                  volume: '{{ input_ios__critical_volume }}'
+    - stop: "Sound test completed. Sirens will not ring."
+
 - parallel:
   - sequence:
     - if: '{{ detectors__heartbeat_switch | length > 0 }}'
@@ -656,7 +713,7 @@ action:
               action_fire_confirm: FIRE_CONFIRM_{{ context.id }}
               action_fire_false: FIRE_FALSE_{{ context.id }}
               tries: 0
-              max_tries: 3
+              max_tries: 1
           - repeat:
               while:
               - condition: template
@@ -1115,9 +1172,15 @@ action:
               event_type: mobile_app_notification_cleared
               event_data:
                 tag: '{{ tag_alarm }}'
+            - platform: template
+              value_template: '{{ silence_switches_all | length > 0 and expand(silence_switches_all) | selectattr("state", "equalto", "on") | list | length > 0 }}'
+              id: physical_mute
+            - platform: template
+              value_template: '{{ expand(smoke_sensors) | selectattr("state", "equalto", "on") | list | length == 0 }}'
+              id: smoke_cleared
             timeout: '{{ input_firstalarm__waittimeout_seconds }}'
           - choose:
-            - conditions: '{{ wait.trigger and wait.trigger.event.event_type == ''mobile_app_notification_action'' }}'
+            - conditions: '{{ wait.trigger and (wait.trigger.platform == "template" or (wait.trigger.platform == "event" and wait.trigger.event.event_type == "mobile_app_notification_action")) }}'
               sequence:
               - variables:
                   tries_alarm: '{{ max_tries_alarm }}'
@@ -1148,7 +1211,7 @@ action:
                           title: '{{ input_allalarm__notify_button_deletenotification }}'
                         - action: '{{ act_mute }}'
                           title: '{{ input_allalarm__notify_button_mutealarm }}'
-      - if: '{{ wait.trigger and wait.trigger.event.event_type == ''mobile_app_notification_action'' and wait.trigger.event.data.action == act_mute }}'
+      - if: '{{ wait.trigger and (wait.trigger.id == "physical_mute" or wait.trigger.id == "smoke_cleared" or (wait.trigger.platform == "event" and wait.trigger.event.event_type == "mobile_app_notification_action" and wait.trigger.event.data.action == act_mute)) }}'
         then:
         - variables:
             start_time: '{{ now() | as_timestamp }}'
