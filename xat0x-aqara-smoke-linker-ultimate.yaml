@@ -125,7 +125,7 @@ blueprint:
 
         firstalarm__ios_sound_name:
           name: "iOS Sound (Pre-Alarm)"
-          description: "Set iOS notification sound filename (for example default, alarm.caf). Leave empty for default."
+          description: "Set iOS notification sound filename (for example alarm.caf). Uses default sound if left empty."
           default: "default"
           selector: { text: {} }
 
@@ -194,7 +194,7 @@ blueprint:
 
         allalarm__ios_sound_name:
           name: "iOS Sound (Main Alarm)"
-          description: "Set iOS notification sound filename (for example default, alarm.caf). Leave empty for default."
+          description: "Set iOS notification sound filename (for example alarm.caf). Uses default sound if left empty."
           default: "default"
           selector: { text: {} }
 
