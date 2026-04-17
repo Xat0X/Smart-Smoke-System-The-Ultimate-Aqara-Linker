@@ -831,8 +831,14 @@ actions:
                       {% set is_button_press_trigger = trigger is defined and trigger.id in button_press_trigger_ids %}
                       {% set event_data = trigger.event.data if (is_button_press_trigger and trigger.event is defined and trigger.event.data is defined) else dict() %}
                       {% set call_service_entities = [] %}
+                      {% set configured_start_entities = [] %}
                       {% set svc_entity = event_data.service_data.entity_id | default(none) %}
                       {% set target_entity = event_data.target.entity_id | default(none) %}
+                      {% if input_test_start_trigger is string %}
+                        {% set configured_start_entities = [input_test_start_trigger] %}
+                      {% elif input_test_start_trigger is sequence %}
+                        {% set configured_start_entities = input_test_start_trigger | list %}
+                      {% endif %}
                       {% if svc_entity is string %}
                         {% set call_service_entities = call_service_entities + [svc_entity] %}
                       {% elif svc_entity is sequence %}
@@ -843,8 +849,9 @@ actions:
                       {% elif target_entity is sequence %}
                         {% set call_service_entities = call_service_entities + (target_entity | list) %}
                       {% endif %}
+                      {% set call_service_entities = call_service_entities | unique | list %}
                       {{ (trigger is defined and trigger.id in ['triggered_test_any','triggered_test_sensor'])
-                         or (is_button_press_trigger and input_test_start_trigger in (call_service_entities | unique | list))
+                         or (is_button_press_trigger and (configured_start_entities | select('in', call_service_entities) | list | length > 0))
                          or (trigger is not defined) }}
                 sequence:
                   - variables:
