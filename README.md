@@ -1,4 +1,4 @@
-# 🚨 Xat0X Smart Smoke System
+# 🚨 Smart Smoke System
 
 > **The ultimate safety suite for interoperable Zigbee smoke detectors in Home Assistant.**
 
@@ -107,7 +107,7 @@ Create a new automation using this blueprint. The settings are organized into co
 1. In Home Assistant, go to **Developer Tools -> Actions**.
 2. Select the `notify.mobile_app_<your_phone>` action, enter a test payload in YAML mode, and change the `sound` / iOS `push.sound.name` value.
 3. If the phone plays the sound, that name is valid for your device/app setup.
-4. Keep Android in mind:
+4. For Android:
    * Android 8+ may use the notification channel sound as highest priority (`alarm_stream`).
    * If a custom per-message sound is ignored, configure sound directly on the `alarm_stream` channel in Android notification settings.
    * Example payload keys:
