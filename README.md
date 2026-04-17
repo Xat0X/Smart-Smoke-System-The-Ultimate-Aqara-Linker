@@ -5,7 +5,7 @@
 Turn your individual Zigbee smoke detectors into a professional, interconnected fire alarm system without buying an expensive hub.
 
 ![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Blueprint-blue)
-![Devices](https://img.shields.io/badge/Devices-Aqara%20%7C%20Heiman%20%7C%20Moes-green)
+![Devices](https://img.shields.io/badge/Devices-Aqara%20%7C%20Heiman%20%7C%20Moes%20%7C%20More-green)
 ![Author](https://img.shields.io/badge/Author-Xat0X-orange)
 
 ## 🌟 Why this blueprint?
@@ -31,6 +31,10 @@ Most Zigbee smoke detectors are "dumb" isolated devices. If a fire starts in the
     *   Aqara `JY-GZ-01AQ`
     *   Heiman `HS1SA-E-PLUS`
     *   Moes `ZSS-HM-SSD01`
+    *   Generic/OEM `SMSZB-120`
+    *   Other Zigbee smoke detectors exposed in Home Assistant via ZHA/Zigbee2MQTT
+        *   Requirement: the detector must provide a `binary_sensor` with `device_class: smoke`
+        *   Check this in Home Assistant: Developer Tools -> States (entity attributes)
 3.  **Home Assistant Mobile App** installed on your phone.
 4.  **Mobile Settings (CRITICAL):**
     *   **iOS:** Enable 'Critical Alerts' in iOS Settings -> Home Assistant -> Notifications.
@@ -58,7 +62,7 @@ Most Zigbee smoke detectors are "dumb" isolated devices. If a fire starts in the
 Create a new automation using this blueprint. The settings are organized into collapsible sections:
 
 ### 1. 📟 Devices & Triggers
-*   **Smoke Detectors**: Select ALL your supported smoke detectors here (Aqara/Heiman/Moes).
+*   **Smoke Detectors**: Select ALL your Zigbee smoke detectors here (including `SMSZB-120`).
 *   **Test Start Trigger**: Create a Helper (Button or Toggle) in Home Assistant. Select it here. **Pressing this button starts the Self-Test Wizard.**
 *   **Alarm Notification Devices**: Phones for the whole family (Critical Alerts).
 *   **Maintenance Device**: The specific phone that will receive the interactive test instructions.
