@@ -36,12 +36,16 @@ blueprint:
       input:
         smoke_detector_devices:
           name: "Smoke Detectors"
-          description: "Select your Zigbee smoke detectors (ZHA or Zigbee2MQTT, any model incl. SMSZB-120)."
+          description: "Select smoke sensor entities from your Zigbee smoke detectors (ZHA or Zigbee2MQTT, incl. SMSZB-120)."
           selector:
-            device:
+            entity:
               filter:
                 - integration: mqtt
+                  domain: binary_sensor
+                  device_class: smoke
                 - integration: zha
+                  domain: binary_sensor
+                  device_class: smoke
               multiple: true
 
         test_start_trigger:
@@ -419,7 +423,20 @@ mode: single
 max_exceeded: silent
 
 trigger_variables:
-  input_smoke_detector_devices: !input smoke_detector_devices
+  input_smoke_detector_devices_raw: !input smoke_detector_devices
+  input_smoke_detector_devices: >-
+    {% set data = namespace(devices=[]) %}
+    {% for item in input_smoke_detector_devices_raw %}
+      {% if item is string and '.' in item %}
+        {% set dev = device_id(item) %}
+      {% else %}
+        {% set dev = item %}
+      {% endif %}
+      {% if dev %}
+        {% set data.devices = data.devices + [dev] %}
+      {% endif %}
+    {% endfor %}
+    {{ data.devices | unique | list }}
   smoke_sensors: >-
     {% set data = namespace(entities=[]) %}
     {% for device in input_smoke_detector_devices %}
