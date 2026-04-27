@@ -62,7 +62,7 @@ Most Zigbee smoke detectors are "dumb" isolated devices. If a fire starts in the
 Create a new automation using this blueprint. The settings are organized into collapsible sections:
 
 ### 1. 📟 Devices & Triggers
-*   **Smoke Detectors**: Select ALL your Zigbee smoke detectors here (including `SMSZB-120`).
+*   **Smoke Detectors**: Select ALL your Zigbee smoke detectors here.
 *   **Test Start Trigger**: Create an `input_button` Helper in Home Assistant (recommended) and select it here. **Pressing it starts the Self-Test Wizard.** `button`, `switch`, `input_boolean`, `sensor`, and `binary_sensor` entities are also supported.
 *   **Alarm Notification Devices**: Phones for the whole family (Critical Alerts).
 *   **Maintenance Device**: The specific phone that will receive the interactive test instructions.
