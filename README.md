@@ -46,13 +46,13 @@ Most Zigbee smoke detectors are "dumb" isolated devices. If a fire starts in the
 
 ### Option 1: Direct Import (Recommended)
 1.  Click the badge below to import the blueprint directly into your Home Assistant instance.
-    [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint URL.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FXat0X%2FSmart-Smoke-System-The-Ultimate-Aqara-Linker%2Fblob%2Fmain%2Fxat0x-aqara-smoke-linker-ultimate.yaml)
+    [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint URL.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FXat0X%2FSmart-Smoke-System-The-Ultimate-Firealarm-Linker%2Fblob%2Fmain%2Fxat0x-smoke-linker-ultimate.yaml)
 2.  Click **"Preview Blueprint"** and then **"Import Blueprint"**.
 
 ### Option 2: Manual Installation
 1.  Copy the code from the `.yaml` file.
 2.  Go to your Home Assistant config folder: `/config/blueprints/automation/xat0x/`.
-3.  Create a file named `xat0x-aqara-smoke-linker-ultimate.yaml` and paste the code.
+3.  Create a file named `xat0x-smoke-linker-ultimate.yaml` and paste the code.
 4.  Go to **Developer Tools** -> **YAML** -> **Reload Automations**.
 
 ---

@@ -9,7 +9,7 @@ blueprint:
     
     Linked fire-alarm handling for Zigbee smoke detectors with a guided self-test wizard.
     
-    GitHub: https://github.com/Xat0X/Smart-Smoke-System-The-Ultimate-Aqara-Linker
+    GitHub: https://github.com/Xat0X/Smart-Smoke-System-The-Ultimate-Firealarm-Linker
     
     ## Features
     *   **Coordinated Alarm:** Monitors all detectors; if one goes off, the system manages notifications and sirens.
@@ -508,7 +508,7 @@ blueprint:
               multiple: false
               multiline: false
 
-  source_url: https://github.com/Xat0X/Smart-Smoke-System-The-Ultimate-Aqara-Linker/blob/main/xat0x-aqara-smoke-linker-ultimate.yaml
+  source_url: https://github.com/Xat0X/Smart-Smoke-System-The-Ultimate-Firealarm-Linker/blob/main/xat0x-smoke-linker-ultimate.yaml
 
 mode: single
 max_exceeded: silent
